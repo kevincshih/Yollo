@@ -47,25 +47,25 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 
         // Spinner Drop down elements
-        List<String> categories = new ArrayList<String>();
-        categories.add("Parks and Trails");
-        categories.add("Restaurants");
-        categories.add("Shopping Malls");
-        List<String> categories2 = new ArrayList<String>();
-        categories2.add("1 Star and Above");
-        categories2.add("2 Stars and Above");
-        categories2.add("3 Stars and Above");
-        categories2.add("4 Stars and Above");
-        List<String> categories3 = new ArrayList<String>();
-        categories3.add("Within 5 mile");
-        categories3.add("Within 10 miles");
-        categories3.add("Within 20 miles");
-        categories3.add("Within 100 miles");
+        List<String> categories = new ArrayList<>();
+        categories.add(getString(R.string.category_parks));
+        categories.add(getString(R.string.category_restaurants));
+        categories.add(getString(R.string.category_shopping));
+        List<String> categories2 = new ArrayList<>();
+        categories2.add(getString(R.string.rating_1));
+        categories2.add(getString(R.string.rating_2));
+        categories2.add(getString(R.string.rating_3));
+        categories2.add(getString(R.string.rating_4));
+        List<String> categories3 = new ArrayList<>();
+        categories3.add(getString(R.string.distance_5));
+        categories3.add(getString(R.string.distance_10));
+        categories3.add(getString(R.string.distance_20));
+        categories3.add(getString(R.string.distance_100));
 
         // Creating adapter for spinner
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories);
-        ArrayAdapter<String> dataAdapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories2);
-        ArrayAdapter<String> dataAdapter3 = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, categories3);
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
+        ArrayAdapter<String> dataAdapter2 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories2);
+        ArrayAdapter<String> dataAdapter3 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories3);
 
         // Drop down layout style - list view with radio button
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

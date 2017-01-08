@@ -1,4 +1,20 @@
 <resources>
     <string name="app_name">Yollo</string>
     <string name="action_settings">Settings</string>
+    <string name="category_parks">Parks and Trails</string>
+    <string name="category_restaurants">Restaurants</string>
+    <string name="category_shopping">Shopping Malls</string>
+    <string name="rating_1">1 Star and Above</string>
+    <string name="rating_2">2 Stars and Above</string>
+    <string name="rating_3">3 Stars and Above</string>
+    <string name="rating_4">4 Stars and Above</string>
+    <string name="distance_5">Within 5 miles</string>
+    <string name="distance_10">Within 10 miles</string>
+    <string name="distance_20">Within 20 miles</string>
+    <string name="distance_100">Within 100 miles</string>
+    <string name="rating">Rating</string>
+    <string name="distance">Distance</string>
+    <string name="category">Category</string>
+    <string name="button_yollo">Yollo</string>
+    <string name="button_results">Show All Results</string>
 </resources>
