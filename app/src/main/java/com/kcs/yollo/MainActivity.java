@@ -48,18 +48,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         // Spinner Drop down elements
         List<String> categories = new ArrayList<String>();
-        categories.add("Category");
         categories.add("Parks and Trails");
         categories.add("Restaurants");
         categories.add("Shopping Malls");
         List<String> categories2 = new ArrayList<String>();
-        categories2.add("Rating");
         categories2.add("1 Star and Above");
         categories2.add("2 Stars and Above");
         categories2.add("3 Stars and Above");
         categories2.add("4 Stars and Above");
         List<String> categories3 = new ArrayList<String>();
-        categories3.add("Distance");
         categories3.add("Within 5 mile");
         categories3.add("Within 10 miles");
         categories3.add("Within 20 miles");
