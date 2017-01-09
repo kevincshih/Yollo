@@ -10,11 +10,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.kcs.yollo.R.id.button;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -35,9 +38,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         });
 
         // Spinner element
-        Spinner spinner = (Spinner) findViewById(R.id.spinner);
-        Spinner spinner2 = (Spinner) findViewById(R.id.spinner2);
-        Spinner spinner3 = (Spinner) findViewById(R.id.spinner3);
+        final Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        final Spinner spinner2 = (Spinner) findViewById(R.id.spinner2);
+        final Spinner spinner3 = (Spinner) findViewById(R.id.spinner3);
 
 
         // Spinner click listener
@@ -76,6 +79,27 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         spinner.setAdapter(dataAdapter);
         spinner2.setAdapter(dataAdapter2);
         spinner3.setAdapter(dataAdapter3);
+
+        final Button yolloButton = (Button) findViewById(R.id.button);
+        final Button showAllButton = (Button) findViewById(R.id.button2);
+
+        yolloButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                String item = spinner.getSelectedItem().toString();
+                String item2 = spinner2.getSelectedItem().toString();
+                String item3 = spinner3.getSelectedItem().toString();
+                Toast.makeText(v.getContext(), "Yollo: " + item + ", " + item2 + ", " + item3, Toast.LENGTH_LONG).show();
+            }
+        });
+
+        showAllButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                String item = spinner.getSelectedItem().toString();
+                String item2 = spinner2.getSelectedItem().toString();
+                String item3 = spinner3.getSelectedItem().toString();
+                Toast.makeText(v.getContext(), "Show All: " + item + ", " + item2 + ", " + item3, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override
@@ -111,5 +135,4 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onNothingSelected(AdapterView<?> arg0) {
         // TODO Auto-generated method stub
     }
-
 }
