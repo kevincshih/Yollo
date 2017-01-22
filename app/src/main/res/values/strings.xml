@@ -17,4 +17,6 @@
     <string name="category">Category</string>
     <string name="button_yollo">Yollo</string>
     <string name="button_results">Show All Results</string>
+    <string name="no_location_detected">No Location Detected</string>
+    <string name="security_exception">Security Exception</string>
 </resources>
