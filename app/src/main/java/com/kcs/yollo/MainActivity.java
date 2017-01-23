@@ -24,9 +24,17 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
+import android.os.AsyncTask;
+
 import java.util.ArrayList;
 import java.util.List;
-
+import org.json.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.Charset;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, ConnectionCallbacks, OnConnectionFailedListener {
 
@@ -60,15 +68,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         });
 
         // Spinner element
-        final Spinner spinner = (Spinner) findViewById(R.id.spinner);
-        final Spinner spinner2 = (Spinner) findViewById(R.id.spinner2);
-        final Spinner spinner3 = (Spinner) findViewById(R.id.spinner3);
+        final Spinner spinnerCategory = (Spinner) findViewById(R.id.spinner);
+        final Spinner spinnerRating = (Spinner) findViewById(R.id.spinner2);
+        final Spinner spinnerDistance = (Spinner) findViewById(R.id.spinner3);
 
 
         // Spinner click listener
-        spinner.setOnItemSelectedListener(this);
-        spinner2.setOnItemSelectedListener(this);
-        spinner3.setOnItemSelectedListener(this);
+        spinnerCategory.setOnItemSelectedListener(this);
+        spinnerRating.setOnItemSelectedListener(this);
+        spinnerDistance.setOnItemSelectedListener(this);
 
 
         // Spinner Drop down elements
@@ -76,21 +84,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         categories.add(getString(R.string.category_parks));
         categories.add(getString(R.string.category_restaurants));
         categories.add(getString(R.string.category_shopping));
-        List<String> categories2 = new ArrayList<>();
-        categories2.add(getString(R.string.rating_1));
-        categories2.add(getString(R.string.rating_2));
-        categories2.add(getString(R.string.rating_3));
-        categories2.add(getString(R.string.rating_4));
-        List<String> categories3 = new ArrayList<>();
-        categories3.add(getString(R.string.distance_5));
-        categories3.add(getString(R.string.distance_10));
-        categories3.add(getString(R.string.distance_20));
-        categories3.add(getString(R.string.distance_100));
+        List<String> ratings = new ArrayList<>();
+        ratings.add(getString(R.string.rating_1));
+        ratings.add(getString(R.string.rating_2));
+        ratings.add(getString(R.string.rating_3));
+        ratings.add(getString(R.string.rating_4));
+        List<String> distances = new ArrayList<>();
+        distances.add(getString(R.string.distance_5));
+        distances.add(getString(R.string.distance_10));
+        distances.add(getString(R.string.distance_20));
+        distances.add(getString(R.string.distance_30));
 
         // Creating adapter for spinner
         ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories);
-        ArrayAdapter<String> dataAdapter2 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories2);
-        ArrayAdapter<String> dataAdapter3 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, categories3);
+        ArrayAdapter<String> dataAdapter2 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ratings);
+        ArrayAdapter<String> dataAdapter3 = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, distances);
 
         // Drop down layout style - list view with radio button
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -98,27 +106,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         dataAdapter3.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         // attaching data adapter to spinner
-        spinner.setAdapter(dataAdapter);
-        spinner2.setAdapter(dataAdapter2);
-        spinner3.setAdapter(dataAdapter3);
+        spinnerCategory.setAdapter(dataAdapter);
+        spinnerRating.setAdapter(dataAdapter2);
+        spinnerDistance.setAdapter(dataAdapter3);
 
         final Button yolloButton = (Button) findViewById(R.id.button);
         final Button showAllButton = (Button) findViewById(R.id.button2);
 
         yolloButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                String item = spinner.getSelectedItem().toString();
-                String item2 = spinner2.getSelectedItem().toString();
-                String item3 = spinner3.getSelectedItem().toString();
-                Toast.makeText(v.getContext(), "Yollo: " + item + ", " + item2 + ", " + item3, Toast.LENGTH_LONG).show();
+                String item = spinnerCategory.getSelectedItem().toString();
+                String item2 = spinnerRating.getSelectedItem().toString();
+                String item3 = spinnerDistance.getSelectedItem().toString();
+                new YolloTask().execute(item, item2, item3);
+                //Toast.makeText(v.getContext(), "Yollo: " + item + ", " + item2 + ", " + item3, Toast.LENGTH_LONG).show();
+                //Toast.makeText(v.getContext(), getRandomPlaceFromYollo(item, item2, item3), Toast.LENGTH_LONG).show();
             }
         });
 
         showAllButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                String item = spinner.getSelectedItem().toString();
-                String item2 = spinner2.getSelectedItem().toString();
-                String item3 = spinner3.getSelectedItem().toString();
+                String item = spinnerCategory.getSelectedItem().toString();
+                String item2 = spinnerRating.getSelectedItem().toString();
+                String item3 = spinnerDistance.getSelectedItem().toString();
                 Toast.makeText(v.getContext(), "Show All: " + item + ", " + item2 + ", " + item3, Toast.LENGTH_LONG).show();
             }
         });
@@ -206,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             }
         }
         catch(SecurityException e){
-            Toast.makeText(this, R.string.no_location_detected, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.security_exception, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -225,5 +235,159 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.i(TAG, "Connection suspended");
         mGoogleApiClient.connect();
     }
+
+    private String getUrl(double latitude, double longitude, String nearbyPlace, int radius) {
+
+        StringBuilder googlePlacesUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
+        googlePlacesUrl.append("location=" + latitude + "," + longitude);
+        googlePlacesUrl.append("&radius=" + radius);
+        googlePlacesUrl.append("&type=" + nearbyPlace);
+        googlePlacesUrl.append("&sensor=true");
+        googlePlacesUrl.append("&key=" + "AIzaSyATuUiZUkEc_UgHuqsBJa1oqaODI-3mLs0");
+        Log.d("getUrl", googlePlacesUrl.toString());
+        return (googlePlacesUrl.toString());
+    }
+
+    private String callURL(String myURL) {
+        System.out.println("Requeted URL:" + myURL);
+        StringBuilder sb = new StringBuilder();
+        URLConnection urlConn = null;
+        InputStreamReader in = null;
+        try {
+            URL url = new URL(myURL);
+            urlConn = url.openConnection();
+            if (urlConn != null)
+                urlConn.setReadTimeout(60 * 1000);
+            if (urlConn != null && urlConn.getInputStream() != null) {
+                in = new InputStreamReader(urlConn.getInputStream(),
+                        Charset.defaultCharset());
+                BufferedReader bufferedReader = new BufferedReader(in);
+                if (bufferedReader != null) {
+                    int cp;
+                    while ((cp = bufferedReader.read()) != -1) {
+                        sb.append((char) cp);
+                    }
+                    bufferedReader.close();
+                }
+            }
+            in.close();
+        } catch (Exception e) {
+            throw new RuntimeException("Exception while calling URL:"+ myURL, e);
+        }
+
+        return sb.toString();
+    }
+
+
+    private String getRandomPlaceFromYollo(String category, String rating, String distance){
+        String result = "";
+        String type;
+        int radius;
+        int rate;
+        if(category == getString(R.string.category_parks)) {
+            type = "park";
+        }
+        else if (category == getString(R.string.category_restaurants)) {
+            type = "food";
+        }
+        else if (category == getString(R.string.category_shopping)) {
+            type = "store";
+        }
+        else {
+            return result;
+        }
+        if (rating == getString(R.string.rating_1)){
+            rate = 1;
+        }
+        else if (rating == getString(R.string.rating_2)){
+            rate = 2;
+        }
+        else if (rating == getString(R.string.rating_3)){
+            rate = 3;
+        }
+        else if (rating == getString(R.string.rating_4)){
+            rate = 4;
+        }
+        else {
+            return result;
+        }
+        if (distance == getString(R.string.distance_5)){
+            radius = 8000;
+        }
+        else if (distance == getString(R.string.distance_10)){
+            radius = 16000;
+        }
+        else if (distance == getString(R.string.distance_20)){
+            radius = 32000;
+        }
+        else if (distance == getString(R.string.distance_30)){
+            radius = 48000;
+        }
+        else{
+            return result;
+        }
+        result = getRandomPlace(type, rate, radius);
+        return result;
+    }
+
+    private String getRandomPlace(String type, int rating, int radius) {
+        String result = "";
+        String url = getUrl(mLastLocation.getLatitude(),mLastLocation.getLongitude(),type,radius);
+        String response = callURL(url);
+        try{
+            JSONObject obj = new JSONObject(response);
+            JSONArray arr = obj.getJSONArray("results");
+            List<Integer> indices = new ArrayList<Integer>();
+            for(int i = 0; i<arr.length(); i++){
+                try {
+                    String n = arr.getJSONObject(i).getString("name");
+                    int r = arr.getJSONObject(i).getInt("rating");
+                    if (r >= rating) {
+                        indices.add(i);
+                    }
+                    Log.d("yollo", "Name=" + n + " Rating=" + String.valueOf(r) + " Total=" + String.valueOf(indices.size()));
+                }
+                catch (Exception e){
+                    String s = arr.getJSONObject(i).toString();
+                    Log.d("yollo", "s=" + s);
+                    Log.d("yollo", "Exception", e);
+                }
+            }
+            if (indices.size()==0){
+                return result;
+            }
+            int rnd = new Random().nextInt(indices.size());
+            result = arr.getJSONObject(indices.get(rnd)).getString("name");
+            return result;
+        }
+        catch(Exception e){
+            Log.d("yollo","Unhandled exception", e);
+            return result;
+        }
+    }
+
+    class YolloTask extends AsyncTask<String, String, String> {
+
+        private Exception exception;
+
+        protected String doInBackground(String... strings) {
+            String result = "";
+            try {
+                String category = strings[0];
+                String rating = strings[1];
+                String distance = strings[2];
+                result = getRandomPlaceFromYollo(category, rating, distance);
+            } catch (Exception e) {
+                this.exception = e;
+            }
+            return result;
+        }
+
+        protected void onPostExecute(String result) {
+            Toast.makeText(findViewById(android.R.id.content).getContext(), result, Toast.LENGTH_LONG).show();
+        }
+
+    }
+
 
 }

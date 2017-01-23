@@ -11,12 +11,12 @@
     <string name="distance_5">Within 5 miles</string>
     <string name="distance_10">Within 10 miles</string>
     <string name="distance_20">Within 20 miles</string>
-    <string name="distance_100">Within 100 miles</string>
+    <string name="distance_30">Within 30 miles</string>
     <string name="rating">Rating</string>
     <string name="distance">Distance</string>
     <string name="category">Category</string>
     <string name="button_yollo">Yollo</string>
     <string name="button_results">Show All Results</string>
     <string name="no_location_detected">No Location Detected</string>
-    <string name="security_exception">Security Exception</string>
+    <string name="security_exception">Need Location Permission</string>
 </resources>
