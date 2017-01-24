@@ -1,5 +1,6 @@
 package com.kcs.yollo;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -13,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.content.Intent;
 
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
@@ -36,7 +38,7 @@ import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, ConnectionCallbacks, OnConnectionFailedListener {
+public class MainActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener {
 
 
     protected static final String TAG = "MainActivity";
@@ -72,18 +74,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         final Spinner spinnerRating = (Spinner) findViewById(R.id.spinner2);
         final Spinner spinnerDistance = (Spinner) findViewById(R.id.spinner3);
 
-
-        // Spinner click listener
-        spinnerCategory.setOnItemSelectedListener(this);
-        spinnerRating.setOnItemSelectedListener(this);
-        spinnerDistance.setOnItemSelectedListener(this);
-
-
         // Spinner Drop down elements
         List<String> categories = new ArrayList<>();
-        categories.add(getString(R.string.category_parks));
-        categories.add(getString(R.string.category_restaurants));
-        categories.add(getString(R.string.category_shopping));
+        categories.add(getString(R.string.category_cafe));
+        categories.add(getString(R.string.category_campground));
+        categories.add(getString(R.string.category_museum));
+        categories.add(getString(R.string.category_park));
+        categories.add(getString(R.string.category_restaurant));
+        categories.add(getString(R.string.category_shopping_mall));
         List<String> ratings = new ArrayList<>();
         ratings.add(getString(R.string.rating_1));
         ratings.add(getString(R.string.rating_2));
@@ -111,7 +109,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         spinnerDistance.setAdapter(dataAdapter3);
 
         final Button yolloButton = (Button) findViewById(R.id.button);
-        final Button showAllButton = (Button) findViewById(R.id.button2);
 
         yolloButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -119,22 +116,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 String item2 = spinnerRating.getSelectedItem().toString();
                 String item3 = spinnerDistance.getSelectedItem().toString();
                 new YolloTask().execute(item, item2, item3);
-                //Toast.makeText(v.getContext(), "Yollo: " + item + ", " + item2 + ", " + item3, Toast.LENGTH_LONG).show();
-                //Toast.makeText(v.getContext(), getRandomPlaceFromYollo(item, item2, item3), Toast.LENGTH_LONG).show();
-            }
-        });
-
-        showAllButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                String item = spinnerCategory.getSelectedItem().toString();
-                String item2 = spinnerRating.getSelectedItem().toString();
-                String item3 = spinnerDistance.getSelectedItem().toString();
-                Toast.makeText(v.getContext(), "Show All: " + item + ", " + item2 + ", " + item3, Toast.LENGTH_LONG).show();
             }
         });
 
         buildGoogleApiClient();
-
     }
 
     @Override
@@ -157,18 +142,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        // On selecting a spinner item
-        String item = parent.getItemAtPosition(position).toString();
-
-        // Showing selected spinner item
-        Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
-    }
-    public void onNothingSelected(AdapterView<?> arg0) {
-        // TODO Auto-generated method stub
     }
 
     /**
@@ -207,11 +180,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         // in rare cases when a location is not available.
         try{
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            if (mLastLocation != null) {
-                String latitude = String.format("%f", mLastLocation.getLatitude());
-                String longitude = String.format("%f", mLastLocation.getLongitude());
-                Toast.makeText(this, latitude + "," + longitude, Toast.LENGTH_LONG).show();
-            } else {
+            if (mLastLocation == null) {
                 Toast.makeText(this, R.string.no_location_detected, Toast.LENGTH_LONG).show();
             }
         }
@@ -284,14 +253,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         String type;
         int radius;
         int rate;
-        if(category == getString(R.string.category_parks)) {
+        if(category == getString(R.string.category_cafe)) {
+            type = "cafe";
+        }
+        else if (category == getString(R.string.category_campground)) {
+            type = "campground";
+        }
+        else if (category == getString(R.string.category_museum)) {
+            type = "museum";
+        }
+        else if (category == getString(R.string.category_park)) {
             type = "park";
         }
-        else if (category == getString(R.string.category_restaurants)) {
-            type = "food";
+        else if (category == getString(R.string.category_restaurant)) {
+            type = "restaurant";
         }
-        else if (category == getString(R.string.category_shopping)) {
-            type = "store";
+        else if (category == getString(R.string.category_shopping_mall)) {
+            type = "shopping_mall";
         }
         else {
             return result;
@@ -366,6 +344,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
 
+    private void StartMapIntent(String query){
+        Uri gmmIntentUri = Uri.parse("geo:0,0?q="+Uri.encode(query));
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+        mapIntent.setPackage("com.google.android.apps.maps");
+        startActivity(mapIntent);
+    }
+
     class YolloTask extends AsyncTask<String, String, String> {
 
         private Exception exception;
@@ -384,7 +369,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
         protected void onPostExecute(String result) {
-            Toast.makeText(findViewById(android.R.id.content).getContext(), result, Toast.LENGTH_LONG).show();
+            if (result != null && !result.isEmpty()){
+                Toast.makeText(findViewById(android.R.id.content).getContext(), result, Toast.LENGTH_LONG).show();
+                StartMapIntent(result);
+            }
+            else{
+                Toast.makeText(findViewById(android.R.id.content).getContext(), getString(R.string.no_results_found), Toast.LENGTH_LONG).show();
+            }
         }
 
     }

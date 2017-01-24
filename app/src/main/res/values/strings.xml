@@ -1,9 +1,12 @@
 <resources>
     <string name="app_name">Yollo</string>
     <string name="action_settings">Settings</string>
-    <string name="category_parks">Parks and Trails</string>
-    <string name="category_restaurants">Restaurants</string>
-    <string name="category_shopping">Shopping Malls</string>
+    <string name="category_cafe">Cafes</string>
+    <string name="category_campground">Campgrounds</string>
+    <string name="category_museum">Museums</string>
+    <string name="category_park">Parks</string>
+    <string name="category_restaurant">Restaurants</string>
+    <string name="category_shopping_mall">Shopping Malls</string>
     <string name="rating_1">1 Star and Above</string>
     <string name="rating_2">2 Stars and Above</string>
     <string name="rating_3">3 Stars and Above</string>
@@ -16,7 +19,7 @@
     <string name="distance">Distance</string>
     <string name="category">Category</string>
     <string name="button_yollo">Yollo</string>
-    <string name="button_results">Show All Results</string>
+    <string name="no_results_found">No Results Found</string>
     <string name="no_location_detected">No Location Detected</string>
     <string name="security_exception">Need Location Permission</string>
 </resources>
