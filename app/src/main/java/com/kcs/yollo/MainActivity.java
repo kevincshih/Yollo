@@ -2,14 +2,12 @@ package com.kcs.yollo;
 
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
@@ -59,15 +57,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         // Spinner element
         final Spinner spinnerCategory = (Spinner) findViewById(R.id.spinner);
@@ -190,7 +179,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult result) {
+    public void onConnectionFailed(@NonNull ConnectionResult result) {
         // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
         // onConnectionFailed.
         Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
@@ -208,11 +197,14 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     private String getUrl(double latitude, double longitude, String nearbyPlace, int radius) {
 
         StringBuilder googlePlacesUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
-        googlePlacesUrl.append("location=" + latitude + "," + longitude);
-        googlePlacesUrl.append("&radius=" + radius);
-        googlePlacesUrl.append("&type=" + nearbyPlace);
+        String l = "location=" + latitude + "," + longitude;
+        String r = "&radius=" + radius;
+        String t = "&type=" + nearbyPlace;
+        googlePlacesUrl.append(l);
+        googlePlacesUrl.append(r);
+        googlePlacesUrl.append(t);
         googlePlacesUrl.append("&sensor=true");
-        googlePlacesUrl.append("&key=" + "AIzaSyATuUiZUkEc_UgHuqsBJa1oqaODI-3mLs0");
+        googlePlacesUrl.append("&key=" + BuildConfig.GOOGLE_PLACES_API_TOKEN);
         Log.d("getUrl", googlePlacesUrl.toString());
         return (googlePlacesUrl.toString());
     }
@@ -220,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
     private String callURL(String myURL) {
         System.out.println("Requeted URL:" + myURL);
         StringBuilder sb = new StringBuilder();
-        URLConnection urlConn = null;
+        URLConnection urlConn;
         InputStreamReader in = null;
         try {
             URL url = new URL(myURL);
@@ -228,18 +220,13 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
             if (urlConn != null)
                 urlConn.setReadTimeout(60 * 1000);
             if (urlConn != null && urlConn.getInputStream() != null) {
-                in = new InputStreamReader(urlConn.getInputStream(),
-                        Charset.defaultCharset());
-                BufferedReader bufferedReader = new BufferedReader(in);
-                if (bufferedReader != null) {
+                try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(urlConn.getInputStream(),Charset.defaultCharset()))){
                     int cp;
                     while ((cp = bufferedReader.read()) != -1) {
                         sb.append((char) cp);
                     }
-                    bufferedReader.close();
                 }
             }
-            in.close();
         } catch (Exception e) {
             throw new RuntimeException("Exception while calling URL:"+ myURL, e);
         }
@@ -253,52 +240,52 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         String type;
         int radius;
         int rate;
-        if(category == getString(R.string.category_cafe)) {
+        if(category.equals(getString(R.string.category_cafe))){
             type = "cafe";
         }
-        else if (category == getString(R.string.category_campground)) {
+        else if (category.equals(getString(R.string.category_campground))){
             type = "campground";
         }
-        else if (category == getString(R.string.category_museum)) {
+        else if (category.equals(getString(R.string.category_museum))){
             type = "museum";
         }
-        else if (category == getString(R.string.category_park)) {
+        else if (category.equals(getString(R.string.category_park))){
             type = "park";
         }
-        else if (category == getString(R.string.category_restaurant)) {
+        else if (category.equals(getString(R.string.category_restaurant))){
             type = "restaurant";
         }
-        else if (category == getString(R.string.category_shopping_mall)) {
+        else if (category.equals(getString(R.string.category_shopping_mall))){
             type = "shopping_mall";
         }
         else {
             return result;
         }
-        if (rating == getString(R.string.rating_1)){
+        if (rating.equals(getString(R.string.rating_1))){
             rate = 1;
         }
-        else if (rating == getString(R.string.rating_2)){
+        else if (rating.equals(getString(R.string.rating_2))){
             rate = 2;
         }
-        else if (rating == getString(R.string.rating_3)){
+        else if (rating.equals(getString(R.string.rating_3))){
             rate = 3;
         }
-        else if (rating == getString(R.string.rating_4)){
+        else if (rating.equals(getString(R.string.rating_4))){
             rate = 4;
         }
         else {
             return result;
         }
-        if (distance == getString(R.string.distance_5)){
+        if (distance.equals(getString(R.string.distance_5))){
             radius = 8000;
         }
-        else if (distance == getString(R.string.distance_10)){
+        else if (distance.equals(getString(R.string.distance_10))){
             radius = 16000;
         }
-        else if (distance == getString(R.string.distance_20)){
+        else if (distance.equals(getString(R.string.distance_20))){
             radius = 32000;
         }
-        else if (distance == getString(R.string.distance_30)){
+        else if (distance.equals(getString(R.string.distance_30))){
             radius = 48000;
         }
         else{
@@ -308,14 +295,14 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         return result;
     }
 
-    private String getRandomPlace(String type, int rating, int radius) {
+    private String getRandomPlace(String type, int rating, int radius){
         String result = "";
         String url = getUrl(mLastLocation.getLatitude(),mLastLocation.getLongitude(),type,radius);
         String response = callURL(url);
         try{
             JSONObject obj = new JSONObject(response);
             JSONArray arr = obj.getJSONArray("results");
-            List<Integer> indices = new ArrayList<Integer>();
+            List<Integer> indices = new ArrayList<>();
             for(int i = 0; i<arr.length(); i++){
                 try {
                     String n = arr.getJSONObject(i).getString("name");
