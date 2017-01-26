@@ -1,5 +1,8 @@
 package com.kcs.yollo;
 
+import android.*;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,6 +16,7 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 import android.content.Intent;
+import android.support.v4.app.ActivityCompat;
 
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
@@ -28,7 +32,9 @@ import android.os.AsyncTask;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.json.*;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -39,6 +45,7 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity implements ConnectionCallbacks, OnConnectionFailedListener {
 
 
+    protected static final int REQUEST_LOCATION_COARSE = 1;
     protected static final String TAG = "MainActivity";
 
     /**
@@ -167,14 +174,20 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         // applications that do not require a fine-grained location and that do not need location
         // updates. Gets the best and most recent location currently available, which may be null
         // in rare cases when a location is not available.
-        try{
+            updateLocation();
+    }
+
+    private void updateLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                    REQUEST_LOCATION_COARSE);
+        }
+        else{
             mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
             if (mLastLocation == null) {
                 Toast.makeText(this, R.string.no_location_detected, Toast.LENGTH_LONG).show();
             }
-        }
-        catch(SecurityException e){
-            Toast.makeText(this, R.string.security_exception, Toast.LENGTH_LONG).show();
         }
     }
 
@@ -194,6 +207,19 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         mGoogleApiClient.connect();
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_LOCATION_COARSE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    updateLocation();
+                }
+            }
+        }
+    }
+
     private String getUrl(double latitude, double longitude, String nearbyPlace, int radius) {
 
         StringBuilder googlePlacesUrl = new StringBuilder("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
@@ -205,7 +231,6 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
         googlePlacesUrl.append(t);
         googlePlacesUrl.append("&sensor=true");
         googlePlacesUrl.append("&key=" + BuildConfig.GOOGLE_PLACES_API_TOKEN);
-        Log.d("getUrl", googlePlacesUrl.toString());
         return (googlePlacesUrl.toString());
     }
 
@@ -310,11 +335,8 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                     if (r >= rating) {
                         indices.add(i);
                     }
-                    Log.d("yollo", "Name=" + n + " Rating=" + String.valueOf(r) + " Total=" + String.valueOf(indices.size()));
                 }
                 catch (Exception e){
-                    String s = arr.getJSONObject(i).toString();
-                    Log.d("yollo", "s=" + s);
                     Log.d("yollo", "Exception", e);
                 }
             }
