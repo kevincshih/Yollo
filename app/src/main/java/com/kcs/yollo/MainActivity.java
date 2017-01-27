@@ -344,7 +344,8 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                 return result;
             }
             int rnd = new Random().nextInt(indices.size());
-            result = arr.getJSONObject(indices.get(rnd)).getString("name");
+            JSONObject selectedPlace = arr.getJSONObject(indices.get(rnd));
+            result = selectedPlace.getString("name") + ' ' + selectedPlace.getString("vicinity");
             return result;
         }
         catch(Exception e){
@@ -373,6 +374,7 @@ public class MainActivity extends AppCompatActivity implements ConnectionCallbac
                 result = getRandomPlaceFromYollo(category, rating, distance);
             } catch (Exception e) {
                 this.exception = e;
+                Log.d("yollo", "Exception", e);
             }
             return result;
         }

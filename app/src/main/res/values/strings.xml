@@ -18,7 +18,7 @@
     <string name="rating">Rating</string>
     <string name="distance">Distance</string>
     <string name="category">Category</string>
-    <string name="button_yollo">Yollo</string>
+    <string name="button_yollo">Search</string>
     <string name="no_results_found">No Results Found</string>
     <string name="no_location_detected">No Location Detected</string>
     <string name="security_exception">Need Location Permission</string>
